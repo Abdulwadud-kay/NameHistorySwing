@@ -1,7 +1,6 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-
 package com.mycompany.namehistoryswing;
 
 /**
@@ -11,13 +10,10 @@ package com.mycompany.namehistoryswing;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-
-
-
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.IOException;
 
 public class NameHistorySwing {
 
@@ -67,29 +63,66 @@ public class NameHistorySwing {
                     BorderFactory.createEmptyBorder(15, 15, 15, 15)
             ));
             resultContainer.setPreferredSize(new Dimension(400, 200));
+            resultContainer.setLayout(new BorderLayout());
 
-            JLabel resultTitle = new JLabel("Name: Default Name");
+            JLabel resultTitle = new JLabel("Name: _________");
             resultTitle.setFont(new Font("Arial", Font.BOLD, 18));
             resultTitle.setForeground(new Color(44, 62, 80));
+            resultContainer.add(resultTitle, BorderLayout.NORTH);
 
-            JLabel resultDescription = new JLabel("<html>Description: A placeholder description. This will display the history and details of the name.</html>");
-            resultDescription.setFont(new Font("Arial", Font.PLAIN, 14));
+            JTextArea resultDescription = new JTextArea("");
+            resultDescription.setFont(new Font("Arial", Font.PLAIN, 20));
             resultDescription.setForeground(new Color(52, 73, 94));
+            resultDescription.setLineWrap(true); // Enable line wrapping
+            resultDescription.setWrapStyleWord(true); // Wrap at word boundaries
+            resultDescription.setEditable(false); // Make it non-editable
+            resultDescription.setBackground(Color.WHITE); // Match the background
+            resultDescription.setBorder(null);
 
-            resultContainer.add(resultTitle);
-            resultContainer.add(resultDescription);
+//            resultContainer.add(resultDescription);
+
+            JScrollPane scrollPane = new JScrollPane(resultDescription);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            resultContainer.add(scrollPane, BorderLayout.CENTER);
 
             mainPanel.add(resultContainer);
 
             // Event handler for Enter button
             enterButton.addActionListener(e -> {
                 String enteredName = searchBar.getText().trim();
-                if (enteredName.isEmpty() || enteredName.equals("Enter a name...")) {
+                if (enteredName.isEmpty()) {
                     resultTitle.setText("Name: Invalid Entry");
-                    resultDescription.setText("<html>Please enter a valid name to fetch details.</html>");
+                    resultDescription.setText("Please enter a valid name to fetch details.");
                 } else {
-                    resultTitle.setText("Name: " + enteredName);
-                    resultDescription.setText("<html>Description: Historical and cultural details about " + enteredName + ".</html>");
+                    try {
+                        // Make API call to fetch name history
+
+                        String apiResponse = NameInfoClient.getNameInfo(enteredName);
+//                        String[] contents = NameInfoParser.parseNameInfo(apiResponse);
+                        System.out.println(apiResponse);
+
+                        if (apiResponse != null) {
+                            // If API response is valid, update UI
+                            resultTitle.setText("Name: " + enteredName);
+                            resultDescription.setText(apiResponse);
+                            
+                        } else {
+                            // If API fails, show default message
+                            resultTitle.setText("Name: " + enteredName);
+                            resultDescription.setText("Description: Failed to fetch details. Please try again later.");
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        // Handle the exception, e.g., show an error message
+                        resultTitle.setText("Name: " + enteredName);
+                        resultDescription.setText("Description: An error occurred while fetching details.");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        // Handle the exception, e.g., show an error message
+                        resultTitle.setText("Name: " + enteredName);
+                        resultDescription.setText("Description: An error occurred while fetching details.");
+                    }
                 }
             });
 
@@ -97,4 +130,3 @@ public class NameHistorySwing {
         });
     }
 }
-
