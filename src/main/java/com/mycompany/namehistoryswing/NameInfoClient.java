@@ -20,11 +20,9 @@ public class NameInfoClient {
     private static final OkHttpClient client = new OkHttpClient();
 
     public static String getNameInfo(String name) throws IOException {
-        // Create JSON payload
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonPayload = objectMapper.writeValueAsString(Map.of("name", name));
 
-        // Build the request
         RequestBody body = RequestBody.create(
                 jsonPayload,
                 MediaType.parse("application/json")
@@ -34,7 +32,6 @@ public class NameInfoClient {
                 .post(body)
                 .build();
 
-        // Send the request and get the response
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
